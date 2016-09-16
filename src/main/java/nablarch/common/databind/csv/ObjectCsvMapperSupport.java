@@ -1,0 +1,92 @@
+package nablarch.common.databind.csv;
+
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.Writer;
+
+import nablarch.common.databind.ObjectMapper;
+import nablarch.core.util.FileUtil;
+
+/**
+ * オブジェクトをCSVにマッピングするのをサポートするクラス。
+ *
+ * @param <T> マッピング対象のクラス
+ * @author Naoki Yamamoto
+ */
+public abstract class ObjectCsvMapperSupport<T> implements ObjectMapper<T> {
+
+    /** CSV用の設定情報 */
+    protected final CsvDataBindConfig config;
+
+    /** 1レコードずつ書き込むライター */
+    private final CsvDataWriter writer;
+
+    /**
+     * コンストラクタ。
+     *
+     * @param config フォーマット定義
+     * @param writer 出力リソース
+     * @param properties プロパティ名リスト
+     */
+    public ObjectCsvMapperSupport(final CsvDataBindConfig config, final Writer writer, final String[] properties) {
+        this.config = config;
+        this.writer = new CsvDataWriter(toBufferedWriter(writer), config, properties);
+    }
+
+    /**
+     * ヘッダーレコードを書き込む。
+     */
+    protected void writeHeader() {
+        if (!config.isRequiredHeader()) {
+            return;
+        }
+        try {
+            writer.write(config.getHeaderTitles());
+        } catch (IOException e) {
+            throw new RuntimeException("failed to writer header.", e);
+        }
+    }
+
+    /**
+     * {@link BufferedWriter}を生成する。
+     *
+     * @param writer {@link Writer}
+     * @return {@link BufferedWriter}
+     */
+    private static BufferedWriter toBufferedWriter(final Writer writer) {
+        return writer instanceof BufferedWriter ? (BufferedWriter) writer : new BufferedWriter(writer);
+    }
+
+    @Override
+    public T read() {
+        throw new UnsupportedOperationException("unsupported read method.");
+    }
+
+    @Override
+    public void write(T object) {
+        try {
+            writer.write(convertValues(object));
+        } catch (IOException e) {
+            throw new RuntimeException("failed to write.", e);
+        }
+    }
+
+    /**
+     * JavaオブジェクトをCSVに出力するための{@link Object}配列に変換する。
+     * <p/>
+     * 変換するObject配列は、CSVファイルに出力する要素順に並べる必要がある。
+     *
+     * @param object Javaオブジェクト
+     * @return CSV出力用のObject配列
+     */
+    protected abstract Object[] convertValues(T object);
+
+    /**
+     * ストリームを閉じてリソースを解放する。
+     */
+    @Override
+    public void close() {
+        FileUtil.closeQuietly(writer);
+    }
+}
+

@@ -1,0 +1,107 @@
+group = 'com.nablarch.framework'
+version = '1.0.1'
+description = 'CSV/固定長ファイルとJavaBeanのバインディングを実現する'
+
+buildscript {
+  repositories {
+    mavenLocal()
+    maven { url "${developLibUrl}" }
+    jcenter()
+  }
+  dependencies {
+    classpath "com.nablarch.dev:nablarch-gradle-plugin:${nablarchGradlePluginVersion}"
+    classpath "net.saliman:gradle-cobertura-plugin:${coberturaPluginVersion}"
+  }
+}
+
+apply plugin: 'com.nablarch.dev.nablarch-build'
+apply plugin: 'com.nablarch.dev.nablarch-maven-deploy'
+apply plugin: 'com.nablarch.dev.nablarch-sonarqube'
+apply plugin: 'com.nablarch.dev.nablarch-version'
+apply plugin: 'cobertura'
+apply plugin: 'idea'
+apply plugin: 'eclipse'
+
+// ビルド時のJavaバージョンを指定する
+sourceCompatibility=JavaVersion.VERSION_1_6
+targetCompatibility=JavaVersion.VERSION_1_6
+
+
+dependencies {
+  // nablarch
+  compile "com.nablarch.framework:nablarch-core-beans:${nablarchCoreBeansVersion}"
+
+  // test api
+  testCompile 'org.jmockit:jmockit:1.13'
+  testCompile 'junit:junit:4.10'
+  testCompile 'com.nablarch.dev:nablarch-test-support:0.0.5'
+  testRuntime "com.nablarch.framework:nablarch-core-applog:${nablarchCoreApplogVersion}"
+  cobertura 'org.slf4j:slf4j-nop:1.7.12' // for cobertura
+}
+
+test {
+
+  jvmArgs (
+          '-XX:MaxPermSize=256m',
+          '-Xmx512m',
+          '-Dfile.encoding=UTF-8',
+          '-XX:-UseSplitVerifier'
+  )
+
+  ignoreFailures = true
+
+
+
+  doFirst {
+    def logDir = new File('log')
+    if (!logDir.exists()) {
+      assert logDir.mkdirs()
+    }
+  }
+
+  cobertura {
+    coverageSourceDirs = ["${projectDir}/src/main/java/"]
+    coverageIgnoreTrivial = true
+    coverageFormats = ['xml']
+    coverageDirs = [project.sourceSets.main.output.classesDir]
+  }
+}
+
+task coverage(dependsOn: ['clean', 'generateCoberturaReportByAnt'])
+
+def coberturaReportDir = new File(project.buildDir, "cobertura-report")
+
+task generateCoberturaReportByAnt(dependsOn: 'cobertura') {
+  def dataFile = "${project.buildDir}/cobertura/cobertura.ser"
+
+  inputs.file file(dataFile)
+  outputs.dir coberturaReportDir
+
+  doLast {
+    ant {
+      taskdef(resource: 'tasks.properties',
+              classpath: configurations.cobertura.asPath)
+
+      'cobertura-report'(
+              destdir: coberturaReportDir,
+              datafile: dataFile,
+              srcdir: "${projectDir}/src/main/java/",
+              format: 'xml'
+      )
+    }
+  }
+}
+
+sonarRunner {
+  sonarProperties {
+    property "sonar.java.coveragePlugin", "cobertura"
+    property "sonar.cobertura.reportPath", "${coberturaReportDir}/coverage.xml"
+  }
+}
+
+tasks.sonarRunner {
+  dependsOn = ['coverage']}
+
+task wrapper(type: Wrapper) {
+  gradleVersion = '2.13'
+}
