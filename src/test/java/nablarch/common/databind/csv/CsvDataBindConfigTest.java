@@ -6,6 +6,8 @@ import static org.junit.Assert.assertThat;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 
+import sun.nio.cs.FastCharsetProvider;
+
 import nablarch.common.databind.csv.CsvDataBindConfig.QuoteMode;
 
 import org.junit.Test;
@@ -17,7 +19,8 @@ public class CsvDataBindConfigTest {
 
     @Test
     public void withQuote() throws Exception {
-        CsvDataBindConfig sut = CsvDataBindConfig.DEFAULT;
+        CsvDataBindConfig sut = CsvDataBindConfig.DEFAULT
+                .withEmptyToNull(false);
 
         sut = sut.withQuote('a');
         assertThat(sut.getQuote(), is('a'));
@@ -29,6 +32,7 @@ public class CsvDataBindConfigTest {
         assertThat(sut.getQuoteMode(), is(CsvDataBindConfig.DEFAULT.getQuoteMode()));
         assertThat(sut.isIgnoreEmptyLine(), is(CsvDataBindConfig.DEFAULT.isIgnoreEmptyLine()));
         assertThat(sut.isRequiredHeader(), is(CsvDataBindConfig.DEFAULT.isRequiredHeader()));
+        assertThat(sut.isEmptyToNull(), is(false));
     }
 
     @Test
@@ -46,11 +50,12 @@ public class CsvDataBindConfigTest {
         assertThat(sut.getQuoteMode(), is(CsvDataBindConfig.DEFAULT.getQuoteMode()));
         assertThat(sut.isIgnoreEmptyLine(), is(CsvDataBindConfig.DEFAULT.isIgnoreEmptyLine()));
         assertThat(sut.isRequiredHeader(), is(CsvDataBindConfig.DEFAULT.isRequiredHeader()));
+        assertThat(sut.isEmptyToNull(), is(CsvDataBindConfig.DEFAULT.isEmptyToNull()));
     }
 
     @Test
     public void withLineSeparator() throws Exception {
-        CsvDataBindConfig sut = CsvDataBindConfig.DEFAULT;
+        CsvDataBindConfig sut = CsvDataBindConfig.DEFAULT.withEmptyToNull(false);
 
         sut = sut.withLineSeparator("\r");
         assertThat(sut.getLineSeparator(), is("\r"));
@@ -68,6 +73,7 @@ public class CsvDataBindConfigTest {
         assertThat(sut.getQuoteMode(), is(CsvDataBindConfig.DEFAULT.getQuoteMode()));
         assertThat(sut.isIgnoreEmptyLine(), is(CsvDataBindConfig.DEFAULT.isIgnoreEmptyLine()));
         assertThat(sut.isRequiredHeader(), is(CsvDataBindConfig.DEFAULT.isRequiredHeader()));
+        assertThat(sut.isEmptyToNull(), is(false));
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -96,6 +102,25 @@ public class CsvDataBindConfigTest {
     }
 
     @Test
+    public void withEmptyToNull() throws Exception {
+        CsvDataBindConfig sut = CsvDataBindConfig.DEFAULT;
+
+        sut = sut.withEmptyToNull(true);
+        assertThat(sut.isEmptyToNull(), is(true));
+        sut = sut.withEmptyToNull(false);
+        assertThat(sut.isEmptyToNull(), is(false));
+
+        assertThat(sut.getFieldSeparator(), is(CsvDataBindConfig.DEFAULT.getFieldSeparator()));
+        assertThat(sut.getQuote(), is(CsvDataBindConfig.DEFAULT.getQuote()));
+        assertThat(sut.getLineSeparator(), is(CsvDataBindConfig.DEFAULT.getLineSeparator()));
+        assertThat(sut.getHeaderTitles(), is(CsvDataBindConfig.DEFAULT.getHeaderTitles()));
+        assertThat(sut.getQuotedColumnNames(), is(CsvDataBindConfig.DEFAULT.getQuotedColumnNames()));
+        assertThat(sut.getQuoteMode(), is(CsvDataBindConfig.DEFAULT.getQuoteMode()));
+        assertThat(sut.isIgnoreEmptyLine(), is(CsvDataBindConfig.DEFAULT.isIgnoreEmptyLine()));
+        assertThat(sut.isRequiredHeader(), is(CsvDataBindConfig.DEFAULT.isRequiredHeader()));
+    }
+
+    @Test
     public void withHeaderTitles() throws Exception {
         CsvDataBindConfig sut = CsvDataBindConfig.DEFAULT;
 
@@ -110,7 +135,7 @@ public class CsvDataBindConfigTest {
         assertThat(sut.getQuoteMode(), is(CsvDataBindConfig.DEFAULT.getQuoteMode()));
         assertThat(sut.isIgnoreEmptyLine(), is(CsvDataBindConfig.DEFAULT.isIgnoreEmptyLine()));
         assertThat(sut.isRequiredHeader(), is(CsvDataBindConfig.DEFAULT.isRequiredHeader()));
-
+        assertThat(sut.isEmptyToNull(), is(CsvDataBindConfig.DEFAULT.isEmptyToNull()));
     }
 
     @Test
@@ -129,6 +154,7 @@ public class CsvDataBindConfigTest {
         assertThat(sut.getQuotedColumnNames(), is(CsvDataBindConfig.DEFAULT.getQuotedColumnNames()));
         assertThat(sut.getQuoteMode(), is(CsvDataBindConfig.DEFAULT.getQuoteMode()));
         assertThat(sut.isIgnoreEmptyLine(), is(CsvDataBindConfig.DEFAULT.isIgnoreEmptyLine()));
+        assertThat(sut.isEmptyToNull(), is(CsvDataBindConfig.DEFAULT.isEmptyToNull()));
     }
 
     @Test
@@ -147,6 +173,7 @@ public class CsvDataBindConfigTest {
         assertThat(sut.isRequiredHeader(), is(CsvDataBindConfig.DEFAULT.isRequiredHeader()));
         assertThat(sut.getQuotedColumnNames(), is(CsvDataBindConfig.DEFAULT.getQuotedColumnNames()));
         assertThat(sut.isIgnoreEmptyLine(), is(CsvDataBindConfig.DEFAULT.isIgnoreEmptyLine()));
+        assertThat(sut.isEmptyToNull(), is(CsvDataBindConfig.DEFAULT.isEmptyToNull()));
     }
 
     @Test
@@ -163,6 +190,7 @@ public class CsvDataBindConfigTest {
         assertThat(sut.isRequiredHeader(), is(CsvDataBindConfig.DEFAULT.isRequiredHeader()));
         assertThat(sut.getQuoteMode(), is(CsvDataBindConfig.DEFAULT.getQuoteMode()));
         assertThat(sut.isIgnoreEmptyLine(), is(CsvDataBindConfig.DEFAULT.isIgnoreEmptyLine()));
+        assertThat(sut.isEmptyToNull(), is(CsvDataBindConfig.DEFAULT.isEmptyToNull()));
     }
 
     @Test
@@ -183,5 +211,6 @@ public class CsvDataBindConfigTest {
         assertThat(sut.isRequiredHeader(), is(CsvDataBindConfig.DEFAULT.isRequiredHeader()));
         assertThat(sut.getQuoteMode(), is(CsvDataBindConfig.DEFAULT.getQuoteMode()));
         assertThat(sut.getQuotedColumnNames(), is(CsvDataBindConfig.DEFAULT.getQuotedColumnNames()));
+        assertThat(sut.isEmptyToNull(), is(CsvDataBindConfig.DEFAULT.isEmptyToNull()));
     }
 }

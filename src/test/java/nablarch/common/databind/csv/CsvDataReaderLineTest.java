@@ -33,7 +33,7 @@ public class CsvDataReaderLineTest {
                 new Param[] {new Param("空の場合", "", (String[]) null)},
                 new Param[] {new Param("1カラムの場合", "1カラム",  new String[] {"1カラム"})},
                 new Param[] {new Param("2カラムの場合", "1カラム,2カラム",  new String[] {"1カラム", "2カラム"})},
-                new Param[] {new Param("空要素がある場合", ",,", new String[] {"", "", ""})},
+                new Param[] {new Param("空要素がある場合", ",,", new String[] {null, null, null})},
                 new Param[] {new Param("クォートで囲まれている場合", "\"囲まれている\"",  new String[] {"囲まれている"})},
                 new Param[] {new Param("ダブルクォート内でダブルクォートがエスケープされている", "\"エスケープ有り→\"\"←これエスケープ\"",  new String[] {"エスケープ有り→\"←これエスケープ"})},
                 new Param[] {new Param("ダブルクォート内にCRが存在している", "\"CR→\r←CR\"",  new String[] {"CR→\r←CR"})},

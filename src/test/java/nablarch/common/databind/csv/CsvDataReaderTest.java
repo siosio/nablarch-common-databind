@@ -53,7 +53,7 @@ public class CsvDataReaderTest {
     @Test
     public void testLineSeparator() throws Exception {
         resource.writeLine("1,2,3");
-        resource.writeLine("10,20,30");
+        resource.writeLine("10,,30");
         resource.close();
 
         final DataReader<String[]> sut = new CsvDataReader(resource.createReader(), format);
@@ -66,7 +66,7 @@ public class CsvDataReaderTest {
         final String[] line2 = sut.read();
         assertThat("要素数は3", line2.length, is(3));
         assertThat(line2[0], is("10"));
-        assertThat(line2[1], is("20"));
+        assertThat(line2[1], is(nullValue()));
         assertThat(line2[2], is("30"));
 
         final String[] line3 = sut.read();
@@ -88,9 +88,9 @@ public class CsvDataReaderTest {
 
         final DataReader<String[]> sut = new CsvDataReader(resource.createReader(), format);
         assertThat("要素数は3", sut.read(), is(new String[] {"1", "2", "3"}));
-        assertThat("空行なので要素数は1", sut.read(), is(new String[] {""}));
+        assertThat("空行なので要素数は1", sut.read(), is(new String[] {null}));
         assertThat("要素数は3", sut.read(), is(new String[] {"10", "20", "30"}));
-        assertThat("空行なので要素数は1", sut.read(), is(new String[] {""}));
+        assertThat("空行なので要素数は1", sut.read(), is(new String[] {null}));
         assertThat("ファイルの終わりに到達したのでnull", sut.read(), is(nullValue()));
     }
 

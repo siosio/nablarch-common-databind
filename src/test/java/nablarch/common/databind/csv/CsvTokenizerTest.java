@@ -1,5 +1,6 @@
 package nablarch.common.databind.csv;
 
+import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -8,6 +9,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
 import java.nio.CharBuffer;
+
+import org.hamcrest.CoreMatchers;
 
 import org.junit.Test;
 
@@ -33,7 +36,7 @@ public class CsvTokenizerTest {
         assertThat("1番目の要素:1", sut.next(), is("1"));
         assertThat("2番目の要素:2", sut.next(), is("2"));
         assertThat("3番目の要素:3", sut.next(), is("3"));
-        assertThat("おわり", sut.next(), is(""));
+        assertThat("おわり", sut.next(), is(nullValue()));
     }
 
     /**

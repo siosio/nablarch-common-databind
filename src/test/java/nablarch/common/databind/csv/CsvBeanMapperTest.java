@@ -1,9 +1,12 @@
 package nablarch.common.databind.csv;
 
 import static org.eclipse.persistence.jpa.jpql.Assert.fail;
+import static org.hamcrest.beans.HasPropertyWithValue.*;
+import static org.hamcrest.core.AllOf.allOf;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.hamcrest.core.IsNull.nullValue;
+import static org.hamcrest.text.IsEmptyString.isEmptyString;
 import static org.junit.Assert.assertThat;
 import static org.junit.matchers.JUnitMatchers.containsString;
 
@@ -36,16 +39,22 @@ public class CsvBeanMapperTest {
         resource.writeLine("");
         resource.writeLine("20,山田太郎");
         resource.writeLine("");
+        resource.writeLine("30,");
         resource.close();
 
         final ObjectMapper<PersonDefault> mapper = ObjectMapperFactory.create(PersonDefault.class, resource.createInputStream());
         PersonDefault person1 = mapper.read();
         PersonDefault person2 = mapper.read();
+        PersonDefault person3 = mapper.read();
         mapper.close();
 
         assertThat(person1.getAge(), is(20));
         assertThat(person1.getName(), is("山田太郎"));
-        assertThat(person2, is(nullValue()));
+
+        assertThat(person2.getAge(), is(30));
+        assertThat(person2.getName(), nullValue());
+
+        assertThat(person3, is(nullValue()));
     }
 
     /**
@@ -416,6 +425,72 @@ public class CsvBeanMapperTest {
         }
     }
 
+    /**
+     * 空のフィールドはnullとして読み込めること
+     */
+    @Test
+    public void testEmptyToNull() throws Exception {
+        resource.writeLine("年齢,名前");
+        resource.writeLine("20,山田太郎");
+        resource.writeLine(",山田太郎");
+        resource.writeLine(",");
+        resource.close();
+
+        final ObjectMapper<PersonDefault> mapper = ObjectMapperFactory.create(
+                PersonDefault.class, resource.createInputStream());
+
+        assertThat(mapper.read(), allOf(
+                hasProperty("name", is("山田太郎")),
+                hasProperty("age", is(20))
+        ));
+        
+        assertThat(mapper.read(), allOf(
+                hasProperty("name", is("山田太郎")),
+                hasProperty("age", is(nullValue()))
+        ));
+        
+        assertThat(mapper.read(), allOf(
+                hasProperty("name", is(nullValue())),
+                hasProperty("age", is(nullValue()))
+        ));
+    }
+    
+    /**
+     * 空のフィールドは空のまま読み込めること
+     */
+    @Test
+    public void testEmptyToEmpty() throws Exception {
+        resource.writeLine("20\t山田太郎");
+        resource.writeLine("\t山田太郎");
+        resource.writeLine("\t");
+        resource.writeLine(" \t 　 ");
+        resource.close();
+
+        final ObjectMapper<PersonCustomAllString> mapper = ObjectMapperFactory.create(
+                PersonCustomAllString.class, resource.createInputStream());
+
+        assertThat(mapper.read(), allOf(
+                hasProperty("name", is("山田太郎")),
+                hasProperty("age", is("20"))
+        ));
+
+        assertThat(mapper.read(), allOf(
+                hasProperty("name", is("山田太郎")),
+                hasProperty("age", isEmptyString())
+        ));
+
+        assertThat(mapper.read(), allOf(
+                hasProperty("name", isEmptyString()),
+                hasProperty("age", isEmptyString())
+        ));
+        
+        assertThat("スペースはそのまま読み込まれること", mapper.read(), allOf(
+                hasProperty("name", is(" 　 ")),
+                hasProperty("age", is(" "))
+        ));
+        mapper.close();
+    }
+
     @Csv(type = Csv.CsvType.DEFAULT, properties = {"age", "name"})
     public static class Person {
         private Integer age;
@@ -509,7 +584,14 @@ public class CsvBeanMapperTest {
     }
 
     @Csv(type = Csv.CsvType.CUSTOM, properties = {"age", "name"})
-    @CsvFormat(fieldSeparator = '\t', lineSeparator = "\r\n", quote = '\'', ignoreEmptyLine = false, requiredHeader = false, charset = "UTF-8", quoteMode = CsvDataBindConfig.QuoteMode.CUSTOM)
+    @CsvFormat(fieldSeparator = '\t',
+            lineSeparator = "\r\n",
+            quote = '\'',
+            ignoreEmptyLine = false,
+            requiredHeader = false,
+            charset = "UTF-8",
+            quoteMode = CsvDataBindConfig.QuoteMode.CUSTOM,
+            nullToEmpty = false)
     public static class PersonCustom {
         private Integer age;
         private String name;
@@ -519,6 +601,37 @@ public class CsvBeanMapperTest {
         }
 
         public void setAge(Integer age) {
+            this.age = age;
+        }
+
+        @Quoted
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+    }
+    
+    @Csv(type = Csv.CsvType.CUSTOM, properties = {"age", "name"})
+    @CsvFormat(fieldSeparator = '\t',
+            lineSeparator = "\r\n",
+            quote = '\'',
+            ignoreEmptyLine = false,
+            requiredHeader = false,
+            charset = "UTF-8",
+            quoteMode = CsvDataBindConfig.QuoteMode.CUSTOM,
+            nullToEmpty = false)
+    public static class PersonCustomAllString {
+        private String age;
+        private String name;
+
+        public String getAge() {
+            return age;
+        }
+
+        public void setAge(String age) {
             this.age = age;
         }
 

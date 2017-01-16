@@ -87,7 +87,9 @@ public class DataBindUtilTest {
 
         // クォートモードがNORMAL
         CsvDataBindConfig actual = (CsvDataBindConfig) DataBindUtil.createDataBindConfig(PersonCustomNormal.class);
-        CsvDataBindConfig expected = new CsvDataBindConfig('\t',"\n",'\'',false, false, new String[]{}, Charset.forName("MS932"), CsvDataBindConfig.QuoteMode.NORMAL, Collections.<String>emptyList());
+        CsvDataBindConfig expected = new CsvDataBindConfig('\t',"\n",'\'',false, false, new String[]{}, Charset.forName("MS932"),
+                false, CsvDataBindConfig.QuoteMode.NORMAL, Collections.<String>emptyList()
+        );
         assertThat(actual.getFieldSeparator(), is(expected.getFieldSeparator()));
         assertThat(actual.getLineSeparator(), is(expected.getLineSeparator()));
         assertThat(actual.getQuote(), is(expected.getQuote()));
@@ -99,7 +101,9 @@ public class DataBindUtilTest {
 
         // クォートモードがALL
         actual = (CsvDataBindConfig) DataBindUtil.createDataBindConfig(PersonCustomAll.class);
-        expected = new CsvDataBindConfig('\t',"\n",'\'',false,false, new String[]{}, Charset.forName("MS932"), CsvDataBindConfig.QuoteMode.ALL, Collections.<String>emptyList());
+        expected = new CsvDataBindConfig('\t',"\n",'\'',false,false, new String[]{}, Charset.forName("MS932"), false,
+                CsvDataBindConfig.QuoteMode.ALL, Collections.<String>emptyList()
+        );
         assertThat(actual.getFieldSeparator(), is(expected.getFieldSeparator()));
         assertThat(actual.getLineSeparator(), is(expected.getLineSeparator()));
         assertThat(actual.getQuote(), is(expected.getQuote()));
@@ -111,7 +115,9 @@ public class DataBindUtilTest {
 
         // クォートモードがNOT_NUMERIC
         actual = (CsvDataBindConfig) DataBindUtil.createDataBindConfig(PersonCustomNotNumeric.class);
-        expected = new CsvDataBindConfig('\t',"\n",'\'',false,false, new String[]{}, Charset.forName("MS932"), CsvDataBindConfig.QuoteMode.NOT_NUMERIC, Collections.<String>emptyList());
+        expected = new CsvDataBindConfig('\t',"\n",'\'',false,false, new String[]{}, Charset.forName("MS932"), false,
+                CsvDataBindConfig.QuoteMode.NOT_NUMERIC, Collections.<String>emptyList()
+        );
         assertThat(actual.getFieldSeparator(), is(expected.getFieldSeparator()));
         assertThat(actual.getLineSeparator(), is(expected.getLineSeparator()));
         assertThat(actual.getQuote(), is(expected.getQuote()));
@@ -123,7 +129,9 @@ public class DataBindUtilTest {
 
         // クォートモードがCUSTOM
         actual = (CsvDataBindConfig) DataBindUtil.createDataBindConfig(PersonCustom.class);
-        expected = new CsvDataBindConfig('\t',"\n",'\'',false,false, new String[]{}, Charset.forName("MS932"), CsvDataBindConfig.QuoteMode.CUSTOM, Collections.<String>emptyList());
+        expected = new CsvDataBindConfig('\t',"\n",'\'',false,false, new String[]{}, Charset.forName("MS932"), false,
+                CsvDataBindConfig.QuoteMode.CUSTOM, Collections.<String>emptyList()
+        );
         assertThat(actual.getFieldSeparator(), is(expected.getFieldSeparator()));
         assertThat(actual.getLineSeparator(), is(expected.getLineSeparator()));
         assertThat(actual.getQuote(), is(expected.getQuote()));
@@ -384,7 +392,15 @@ public class DataBindUtilTest {
     }
 
     @Csv(type = Csv.CsvType.CUSTOM, properties = {"age", "name"})
-    @CsvFormat(fieldSeparator = '\t', lineSeparator = "\n", quote = '\'', ignoreEmptyLine = false, requiredHeader = false, charset = "MS932", quoteMode = CsvDataBindConfig.QuoteMode.NORMAL)
+    @CsvFormat(fieldSeparator = '\t',
+            lineSeparator = "\n",
+            quote = '\'',
+            ignoreEmptyLine = false,
+            requiredHeader = false,
+            charset = "MS932",
+            nullToEmpty = false,
+            quoteMode = CsvDataBindConfig.QuoteMode.NORMAL
+    )
     public static class PersonCustomNormal {
         private Integer age;
         private String name;
@@ -407,7 +423,14 @@ public class DataBindUtilTest {
     }
 
     @Csv(type = Csv.CsvType.CUSTOM, properties = {"age", "name"})
-    @CsvFormat(fieldSeparator = '\t', lineSeparator = "\n", quote = '\'', ignoreEmptyLine = false, requiredHeader = false, charset = "MS932", quoteMode = CsvDataBindConfig.QuoteMode.ALL)
+    @CsvFormat(fieldSeparator = '\t',
+            lineSeparator = "\n",
+            quote = '\'',
+            ignoreEmptyLine = false,
+            requiredHeader = false,
+            charset = "MS932",
+            nullToEmpty = false,
+            quoteMode = CsvDataBindConfig.QuoteMode.ALL)
     public static class PersonCustomAll {
         private Integer age;
         private String name;
@@ -430,7 +453,14 @@ public class DataBindUtilTest {
     }
 
     @Csv(type = Csv.CsvType.CUSTOM, properties = {"age", "name"})
-    @CsvFormat(fieldSeparator = '\t', lineSeparator = "\n", quote = '\'', ignoreEmptyLine = false, requiredHeader = false, charset = "MS932", quoteMode = CsvDataBindConfig.QuoteMode.NOT_NUMERIC)
+    @CsvFormat(fieldSeparator = '\t',
+            lineSeparator = "\n",
+            quote = '\'',
+            ignoreEmptyLine = false,
+            requiredHeader = false,
+            charset = "MS932",
+            nullToEmpty = false,
+            quoteMode = CsvDataBindConfig.QuoteMode.NOT_NUMERIC)
     public static class PersonCustomNotNumeric {
         private Integer age;
         private String name;
@@ -453,7 +483,14 @@ public class DataBindUtilTest {
     }
 
     @Csv(type = Csv.CsvType.CUSTOM, properties = {"age", "name"})
-    @CsvFormat(fieldSeparator = '\t', lineSeparator = "\n", quote = '\'', ignoreEmptyLine = false, requiredHeader = false, charset = "MS932", quoteMode = CsvDataBindConfig.QuoteMode.CUSTOM)
+    @CsvFormat(fieldSeparator = '\t',
+            lineSeparator = "\n",
+            quote = '\'',
+            ignoreEmptyLine = false,
+            requiredHeader = false,
+            charset = "MS932",
+            nullToEmpty = false,
+            quoteMode = CsvDataBindConfig.QuoteMode.CUSTOM)
     public static class PersonCustom {
         private Integer age;
         private String name;
@@ -477,7 +514,14 @@ public class DataBindUtilTest {
     }
 
     @Csv(type = Csv.CsvType.DEFAULT, properties = {"age", "name"})
-    @CsvFormat(fieldSeparator = '\t', lineSeparator = "\n", quote = '\'', ignoreEmptyLine = false, requiredHeader = false, charset = "MS932", quoteMode = CsvDataBindConfig.QuoteMode.NORMAL)
+    @CsvFormat(fieldSeparator = '\t',
+            lineSeparator = "\n",
+            quote = '\'',
+            ignoreEmptyLine = false,
+            requiredHeader = false,
+            charset = "MS932",
+            nullToEmpty = false,
+            quoteMode = CsvDataBindConfig.QuoteMode.NORMAL)
     public static class PersonBoth {
         private Integer age;
         private String name;
@@ -500,7 +544,14 @@ public class DataBindUtilTest {
     }
 
     @Csv(type = Csv.CsvType.CUSTOM, properties = {"age", "name"})
-    @CsvFormat(fieldSeparator = '\t', lineSeparator = "\n", quote = '\'', ignoreEmptyLine = false, requiredHeader = true, charset = "MS932", quoteMode = CsvDataBindConfig.QuoteMode.NORMAL)
+    @CsvFormat(fieldSeparator = '\t',
+            lineSeparator = "\n",
+            quote = '\'',
+            ignoreEmptyLine = false,
+            requiredHeader = true,
+            charset = "MS932",
+            nullToEmpty = false,
+            quoteMode = CsvDataBindConfig.QuoteMode.NORMAL)
     public static class PersonHeader {
         private Integer age;
         private String name;
