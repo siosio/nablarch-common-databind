@@ -65,9 +65,9 @@ public class CsvDataReaderTsvFormatTest {
 
         final CsvDataReader sut = new CsvDataReader(resource.createReader(), CsvDataBindConfig.TSV);
         assertThat("要素数は3", sut.read(), is(new String[] {"1", "2", "3"}));
-        assertThat("空行なので要素数は1", sut.read(), is(new String[] {""}));
+        assertThat("空行なので要素数は1", sut.read(), is(new String[] {null}));
         assertThat("要素数は3", sut.read(), is(new String[] {"10", "20", "30"}));
-        assertThat("空行なので要素数は1", sut.read(), is(new String[] {""}));
+        assertThat("空行なので要素数は1", sut.read(), is(new String[] {null}));
         assertThat("ファイルの終わりに到達したのでnull", sut.read(), is(nullValue()));
     }
 

@@ -59,9 +59,9 @@ class CsvTokenizer {
         final int c = reader.read();
         if (isEndOfFile(c) || isEndOfLine(c)) {
             hasNext = false;
-            return "";
+            return format.isEmptyToNull() ? null : "";
         } else if (isFieldSeparator(c)) {
-            return "";
+            return format.isEmptyToNull() ? null : "";
         } else if (isQuote(c)) {
             return readQuotedItem();
         } else {

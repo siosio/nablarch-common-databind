@@ -43,6 +43,9 @@ public @interface CsvFormat {
     /** 文字コード */
     String charset();
 
+    /** 空フィールドをnullに置き換えるかどうか */
+    boolean nullToEmpty();
+
     /**
      * 出力時に{@link #quote}で囲むフィールド。
      * <p/>

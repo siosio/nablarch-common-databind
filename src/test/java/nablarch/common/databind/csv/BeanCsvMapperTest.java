@@ -314,7 +314,8 @@ public class BeanCsvMapperTest {
             lineSeparator = "\r\n",
             quote = '\'',
             quoteMode = QuoteMode.NOT_NUMERIC,
-            requiredHeader = true
+            requiredHeader = true,
+            nullToEmpty = false
     )
     public static class TsvWithHeaderPerson extends Person {
 

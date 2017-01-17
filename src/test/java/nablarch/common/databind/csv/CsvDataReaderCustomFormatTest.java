@@ -2,9 +2,12 @@ package nablarch.common.databind.csv;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.collection.IsArrayContainingInOrder.*;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.junit.matchers.JUnitMatchers.containsString;
+
+import org.hamcrest.collection.IsArrayContainingInOrder;
 
 import nablarch.common.databind.InvalidDataFormatException;
 
@@ -347,6 +350,49 @@ public class CsvDataReaderCustomFormatTest {
                         e.getMessage(), containsString("line number = [8]"));
 
             }
+        }
+    }
+
+    /**
+     * 空フィールドの扱いのテスト
+     */
+    public static class EmptyToNull {
+
+        @Rule
+        public CsvResource resource = new CsvResource("test.csv", "utf-8", "\r\n");
+
+        @Test
+        public void testEmptyToEmpty() throws Exception {
+            resource.writeLine("1,2");
+            resource.writeLine(",22");
+            resource.writeLine("111,");
+            resource.close();
+
+            final CsvDataBindConfig config = CsvDataBindConfig.DEFAULT.withEmptyToNull(false);
+
+            final CsvDataReader sut = new CsvDataReader(resource.createReader(), config);
+
+            assertThat("1レコード目", sut.read(), is(arrayContaining("1", "2")));
+            assertThat("2レコード目", sut.read(), is(arrayContaining("", "22")));
+            assertThat("3レコード目", sut.read(), is(arrayContaining("111", "")));
+            assertThat("全て読み終わったのでnull", sut.read(), is(nullValue()));
+        }
+        
+        @Test
+        public void testEmptyToNull() throws Exception {
+            resource.writeLine("1,2");
+            resource.writeLine(",22");
+            resource.writeLine("111,");
+            resource.close();
+
+            final CsvDataBindConfig config = CsvDataBindConfig.DEFAULT.withEmptyToNull(true);
+
+            final CsvDataReader sut = new CsvDataReader(resource.createReader(), config);
+
+            assertThat("1レコード目", sut.read(), is(arrayContaining("1", "2")));
+            assertThat("2レコード目", sut.read(), is(arrayContaining(nullValue(), is("22"))));
+            assertThat("3レコード目", sut.read(), is(arrayContaining(is("111"), nullValue())));
+            assertThat("全て読み終わったのでnull", sut.read(), is(nullValue()));
         }
     }
 }
