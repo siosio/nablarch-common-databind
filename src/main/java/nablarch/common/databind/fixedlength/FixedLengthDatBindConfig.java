@@ -1,12 +1,13 @@
 package nablarch.common.databind.fixedlength;
 
+import java.lang.annotation.Annotation;
 import java.nio.charset.Charset;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import nablarch.common.databind.DataBindConfig;
+import nablarch.common.databind.fixedlength.converter.Converter.FieldConverter;
 
 /**
  * 固定長用のフォーマット定義を表すクラス。
@@ -31,7 +32,8 @@ public class FixedLengthDatBindConfig implements DataBindConfig {
 
     /**
      * コンストラクタ。
-     *  @param charset 文字コード
+     *
+     * @param charset 文字コード
      * @param length レコード長(バイト数)
      * @param lineSeparator
      * @param multiLayout
@@ -69,6 +71,7 @@ public class FixedLengthDatBindConfig implements DataBindConfig {
 
     /**
      * 改行コードを返す。
+     *
      * @return 改行コード
      */
     public String getLineSeparator() {
@@ -91,13 +94,21 @@ public class FixedLengthDatBindConfig implements DataBindConfig {
         public static final String SINGLE_LAYOUT_NAME = "single";
 
         private final String name;
+
         private final int offset;
+
         private final int length;
 
-        public Layout(final String name, final int offset, final int length) {
+        private final FieldConverterHolder<?> fieldConverter;
+
+        public Layout(final String name,
+                final int offset,
+                final int length,
+                final FieldConverterHolder<?> fieldConverter) {
             this.name = name;
             this.offset = offset;
             this.length = length;
+            this.fieldConverter = fieldConverter;
         }
 
         public String getName() {
@@ -110,6 +121,29 @@ public class FixedLengthDatBindConfig implements DataBindConfig {
 
         public int getLength() {
             return length;
+        }
+
+        public FieldConverterHolder<?> getFieldConverter() {
+            return fieldConverter;
+        }
+    }
+
+    public static class FieldConverterHolder<C extends Annotation> {
+        private final C annotation;
+
+        private final FieldConverter<C, ?> fieldConverter;
+
+        public FieldConverterHolder(final C annotation, final FieldConverter<C, ?> fieldConverter) {
+            this.annotation = annotation;
+            this.fieldConverter = fieldConverter;
+        }
+
+        public C getAnnotation() {
+            return annotation;
+        }
+
+        public FieldConverter<C, ?> getFieldConverter() {
+            return fieldConverter;
         }
     }
 }

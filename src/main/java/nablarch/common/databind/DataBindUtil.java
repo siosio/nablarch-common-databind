@@ -103,17 +103,19 @@ public final class DataBindUtil {
      */
     @Published(tag = "architect")
     public static <T> T getInstance(Class<T> clazz, String[] propertyNames, String[] values) {
-        T bean;
-        try {
-            bean = clazz.newInstance();
-        } catch (Exception e) {
-            throw new BeansException(e);
-        }
-
+        T bean = getInstance(clazz);
         for (int i = 0; i < values.length; i++) {
             BeanUtil.setProperty(bean, propertyNames[i], values[i]);
         }
         return bean;
+    }
+
+    public static <T> T getInstance(Class<T> clazz) {
+        try {
+            return clazz.newInstance();
+        } catch (Exception e) {
+            throw new BeansException(e);
+        }
     }
 
     /**

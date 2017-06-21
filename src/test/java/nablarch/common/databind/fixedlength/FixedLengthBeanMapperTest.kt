@@ -1,7 +1,7 @@
 package nablarch.common.databind.fixedlength
 
 import nablarch.common.databind.*
-import org.hamcrest.*
+import nablarch.common.databind.fixedlength.converter.*
 import org.hamcrest.Matchers.*
 import org.junit.*
 import org.junit.Assert.*
@@ -15,16 +15,19 @@ class FixedLengthBeanMapperTest {
         @FixedLength(length = 5, charset = "Windows-31J", lineSeparator = "\n")
         data class Single(
                 @get:Field(offset = 1, length = 1)
+                @get:NumberStringConverter
                 var id: Int? = null,
+
                 @get:Field(offset = 2, length = 5)
+                @get:StringConverter(paddingChar = '　')
                 var name: String? = null
         ) {
             constructor() : this(null, null)
         }
-        ObjectMapperFactory.create(Single::class.java, ByteArrayInputStream("1ああ\n2いい\n".toByteArray(MS932()))).use { sut ->
+        ObjectMapperFactory.create(Single::class.java, ByteArrayInputStream("1あ　\n2いい\n".toByteArray(MS932()))).use { sut ->
             assertThat(sut, instanceOf(FixedLengthBeanMapper::class.java))
 
-            assertThat(sut.read(), `is`(Single(1, "ああ")))
+            assertThat(sut.read(), `is`(Single(1, "あ")))
             assertThat(sut.read(), `is`(Single(2, "いい")))
             assertThat(sut.read(), `is`(nullValue()))
         }
@@ -35,10 +38,13 @@ class FixedLengthBeanMapperTest {
         @FixedLength(length = 5, charset = "Windows-31J", lineSeparator = "\n")
         data class Single(
                 @get:Field(offset = 1, length = 1)
+                @get:NumberStringConverter
                 var id: Int? = null,
                 @get:Field(offset = 2, length = 3)
+                @get:StringConverter(paddingChar = '　')
                 var name: String? = null,
                 @get:Field(offset = 4, length = 5)
+                @get:StringConverter(paddingChar = '　')
                 var name2: String? = null
         ) {
             constructor() : this(null, null, null)
