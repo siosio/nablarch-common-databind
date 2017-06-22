@@ -13,7 +13,6 @@ import nablarch.common.databind.csv.CsvMapMapper;
 import nablarch.common.databind.csv.MapCsvMapper;
 import nablarch.common.databind.fixedlength.FixedLengthBeanMapper;
 import nablarch.common.databind.fixedlength.FixedLengthDatBindConfig;
-import nablarch.common.databind.fixedlength.FixedLengthDataConfigCreator;
 
 public class BasicObjectMapperFactory extends ObjectMapperFactory {
 

@@ -6,10 +6,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-public @interface FixedLength {
-    int length();
-    String charset();
-    String lineSeparator() default "";
-    boolean multiLayout() default false;
+@Target(ElementType.METHOD)
+public @interface Record {
+
+    String name() default "";
 }

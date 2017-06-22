@@ -1,12 +1,14 @@
 package nablarch.common.databind.fixedlength;
 
+import java.beans.PropertyDescriptor;
 import java.io.InputStream;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.util.List;
 
 import nablarch.common.databind.DataBindUtil;
-import nablarch.common.databind.fixedlength.FixedLengthDatBindConfig.Layout;
+import nablarch.common.databind.fixedlength.FixedLengthDatBindConfig.FieldDefinition;
+import nablarch.common.databind.fixedlength.MultiLayout.RecordName;
 import nablarch.core.beans.BeanUtil;
 import nablarch.core.util.FileUtil;
 
@@ -38,15 +40,27 @@ public class FixedLengthBeanMapper<T> extends FixedLengthObjectMapperSupport<T> 
         }
         final T bean = DataBindUtil.getInstance(this.beanClass);
 
-        if (!config.isMultiLayout()) {
-            final List<Layout> layouts = config.getLayout();
-            for (final Layout layout : layouts) {
-                final String name = layout.getName();
-                final Object fieldValue = line.readField(config, layout);
-                BeanUtil.setProperty(bean, name, fieldValue);
-            }
+        if (config.isMultiLayout()) {
+            final RecordName recordName = ((MultiLayout) bean).getLayoutName(line.getLine());
+            BeanUtil.setProperty(bean, "recordName", recordName);
+            final PropertyDescriptor descriptor = BeanUtil.getPropertyDescriptor(beanClass, recordName.getRecordName());
+            final Object record = DataBindUtil.getInstance(descriptor.getPropertyType());
+            setFileValue(line, record, recordName.getRecordName());
+            BeanUtil.setProperty(bean, recordName.getRecordName(), record);
+            return bean;
+        } else {
+            setFileValue(line, bean, FieldDefinition.SINGLE_LAYOUT_NAME);
         }
         return bean;
+    }
+
+    private void setFileValue(final Line line, final Object bean, final String recordName) {
+        final List<FieldDefinition> fieldDefinitions = config.getFieldDefinitions(recordName);
+        for (final FieldDefinition fieldDefinition : fieldDefinitions) {
+            final String name = fieldDefinition.getName();
+            final Object fieldValue = line.readField(config, fieldDefinition);
+            BeanUtil.setProperty(bean, name, fieldValue);
+        }
     }
 
     @Override

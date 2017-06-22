@@ -8,9 +8,9 @@ import java.util.Map;
 import java.util.WeakHashMap;
 
 import nablarch.common.databind.csv.Csv;
-import nablarch.common.databind.csv.CsvDataBindConfigCreator;
+import nablarch.common.databind.csv.CsvDataBindConfigConverter;
 import nablarch.common.databind.csv.Quoted;
-import nablarch.common.databind.fixedlength.FixedLengthDataConfigCreator;
+import nablarch.common.databind.fixedlength.FixedLengthDataConfigConverter;
 import nablarch.core.beans.BeanUtil;
 import nablarch.core.beans.BeansException;
 import nablarch.core.util.annotation.Published;
@@ -30,9 +30,9 @@ public final class DataBindUtil {
     private static final Map<Class<?>, String[]> CSV_PROPERTY_NAMES_MAP = new WeakHashMap<Class<?>, String[]>();
 
     /** 対応している形式のリスト */
-    private static final List<DataBindConfigCreator<?>> CREATORS = Arrays.asList(
-            new CsvDataBindConfigCreator(),
-            new FixedLengthDataConfigCreator());
+    private static final List<DataBindConfigConverter<?>> CREATORS = Arrays.asList(
+            new CsvDataBindConfigConverter(),
+            new FixedLengthDataConfigConverter());
 
 
     /**
@@ -84,7 +84,7 @@ public final class DataBindUtil {
      * @return {@link DataBindConfig}オブジェクト
      */
     public static <T> DataBindConfig createDataBindConfig(Class<T> clazz) {
-        for (final DataBindConfigCreator<?> creator : CREATORS) {
+        for (final DataBindConfigConverter<?> creator : CREATORS) {
             if (clazz.getAnnotation(creator.type()) != null) {
                 return creator.create(clazz);
             }

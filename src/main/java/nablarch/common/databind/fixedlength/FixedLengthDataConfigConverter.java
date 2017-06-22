@@ -8,15 +8,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import nablarch.common.databind.DataBindConfig;
-import nablarch.common.databind.DataBindConfigCreator;
+import nablarch.common.databind.DataBindConfigConverter;
 import nablarch.common.databind.DataBindUtil;
 import nablarch.common.databind.fixedlength.FixedLengthDatBindConfig.FieldConverterHolder;
-import nablarch.common.databind.fixedlength.FixedLengthDatBindConfig.Layout;
+import nablarch.common.databind.fixedlength.FixedLengthDatBindConfig.FieldDefinition;
 import nablarch.common.databind.fixedlength.converter.Converter;
 import nablarch.common.databind.fixedlength.converter.Converter.FieldConverter;
 import nablarch.core.beans.BeanUtil;
 
-public class FixedLengthDataConfigCreator implements DataBindConfigCreator<FixedLength>{
+public class FixedLengthDataConfigConverter implements DataBindConfigConverter<FixedLength> {
 
     @Override
     public <BEAN> DataBindConfig create(final Class<BEAN> beanClass) {
@@ -29,16 +29,28 @@ public class FixedLengthDataConfigCreator implements DataBindConfigCreator<Fixed
                 .multiLayout(fixedLength.multiLayout());
 
         if (fixedLength.multiLayout()) {
-
+            createMultiLayout(builder, beanClass);
         } else {
-            builder.addLayout(Layout.SINGLE_LAYOUT_NAME, createSingleLayout(beanClass));
+            builder.addLayout(FieldDefinition.SINGLE_LAYOUT_NAME, createSingleLayout(beanClass));
         }
         return builder.build();
     }
 
-    private <BEAN> List<Layout> createSingleLayout(final Class<BEAN> beanClass) {
+    private <BEAN> void createMultiLayout(final FixedLengthDataBindConfigBuilder builder, final Class<BEAN> beanClass) {
         final PropertyDescriptor[] descriptors = BeanUtil.getPropertyDescriptors(beanClass);
-        final List<Layout> layouts = new ArrayList<Layout>(descriptors.length);
+        for (final PropertyDescriptor descriptor : descriptors) {
+            final Method method = descriptor.getReadMethod();
+            final Record record = method.getAnnotation(Record.class);
+            if (record == null) {
+                continue;
+            }
+            builder.addLayout(descriptor.getName(), createSingleLayout(method.getReturnType()));
+        }
+    }
+
+    private <BEAN> List<FieldDefinition> createSingleLayout(final Class<BEAN> beanClass) {
+        final PropertyDescriptor[] descriptors = BeanUtil.getPropertyDescriptors(beanClass);
+        final List<FieldDefinition> fieldDefinitions = new ArrayList<FieldDefinition>(descriptors.length);
         for (final PropertyDescriptor descriptor : descriptors) {
             final Method method = descriptor.getReadMethod();
             final Field field = method.getAnnotation(Field.class);
@@ -57,9 +69,9 @@ public class FixedLengthDataConfigCreator implements DataBindConfigCreator<Fixed
                     fieldConverterHolder = new FieldConverterHolder(annotation, DataBindUtil.getInstance(fieldConverter));
                 }
             }
-            layouts.add(new Layout(descriptor.getName(), field.offset(), field.length(), fieldConverterHolder));
+            fieldDefinitions.add(new FieldDefinition(descriptor.getName(), field.offset(), field.length(), fieldConverterHolder));
         }
-        return layouts;
+        return fieldDefinitions;
     }
 
     @Override

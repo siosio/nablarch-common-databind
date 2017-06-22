@@ -54,9 +54,9 @@ public abstract class FixedLengthObjectMapperSupport<T> implements ObjectMapper<
         }
 
         @SuppressWarnings("unchecked")
-        public <T> T readField(final FixedLengthDatBindConfig config, final FixedLengthDatBindConfig.Layout layout) {
-            final byte[] fieldData = Arrays.copyOfRange(line, layout.getOffset() - 1, layout.getLength());
-            final FixedLengthDatBindConfig.FieldConverterHolder<?> converter = layout.getFieldConverter();
+        public <T> T readField(final FixedLengthDatBindConfig config, final FixedLengthDatBindConfig.FieldDefinition fieldDefinition) {
+            final byte[] fieldData = Arrays.copyOfRange(line, fieldDefinition.getOffset() - 1, fieldDefinition.getLength());
+            final FixedLengthDatBindConfig.FieldConverterHolder<?> converter = fieldDefinition.getFieldConverter();
             if (converter == null) {
                 return (T) fieldData;
             } else {
@@ -64,6 +64,10 @@ public abstract class FixedLengthObjectMapperSupport<T> implements ObjectMapper<
                 final Annotation annotation = converter.getAnnotation();
                 return (T) fieldConverter.convertOfRead(config, annotation, fieldData);
             }
+        }
+
+        public byte[] getLine() {
+            return line;
         }
     }
 }

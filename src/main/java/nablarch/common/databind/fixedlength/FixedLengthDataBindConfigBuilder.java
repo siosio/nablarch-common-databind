@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import nablarch.common.databind.fixedlength.FixedLengthDatBindConfig.Layout;
+import nablarch.common.databind.fixedlength.FixedLengthDatBindConfig.FieldDefinition;
 
 public class FixedLengthDataBindConfigBuilder {
 
@@ -17,7 +17,7 @@ public class FixedLengthDataBindConfigBuilder {
 
     private boolean multiLayout;
 
-    private final Map<String, List<Layout>> layouts = new HashMap<String, List<Layout>>();
+    private final Map<String, List<FieldDefinition>> layouts = new HashMap<String, List<FieldDefinition>>();
 
     public static FixedLengthDataBindConfigBuilder newBuilder() {
         return new FixedLengthDataBindConfigBuilder();
@@ -47,7 +47,7 @@ public class FixedLengthDataBindConfigBuilder {
         return new FixedLengthDatBindConfig(charset, length, lineSeparator, multiLayout, layouts);
     }
 
-    public void addLayout(final String single, final List<FixedLengthDatBindConfig.Layout> layouts) {
-        this.layouts.put(single, layouts);
+    public void addLayout(final String single, final List<FieldDefinition> fieldDefinitions) {
+        this.layouts.put(single, fieldDefinitions);
     }
 }

@@ -3,10 +3,10 @@ package nablarch.common.databind.csv;
 import java.text.MessageFormat;
 
 import nablarch.common.databind.DataBindConfig;
-import nablarch.common.databind.DataBindConfigCreator;
+import nablarch.common.databind.DataBindConfigConverter;
 import nablarch.common.databind.DataBindUtil;
 
-public class CsvDataBindConfigCreator implements DataBindConfigCreator<Csv>{
+public class CsvDataBindConfigConverter implements DataBindConfigConverter<Csv> {
     @Override
     public <BEAN> DataBindConfig create(Class<BEAN> beanClass) {
         Csv csv = beanClass.getAnnotation(Csv.class);

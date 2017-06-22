@@ -28,7 +28,7 @@ public class FixedLengthDatBindConfig implements DataBindConfig {
     /** レイアウトを判定しレコード定義を持つBeanを返すクラス */
     private final boolean multiLayout;
 
-    private final Map<String, List<Layout>> layout;
+    private final Map<String, List<FieldDefinition>> fieldDefinitions;
 
     /**
      * コンストラクタ。
@@ -43,12 +43,12 @@ public class FixedLengthDatBindConfig implements DataBindConfig {
             final int length,
             final String lineSeparator,
             final boolean multiLayout,
-            final Map<String, List<Layout>> layout) {
+            final Map<String, List<FieldDefinition>> fieldDefinitions) {
         this.charset = charset;
         this.length = length;
         this.lineSeparator = lineSeparator;
         this.multiLayout = multiLayout;
-        this.layout = Collections.unmodifiableMap(layout);
+        this.fieldDefinitions = Collections.unmodifiableMap(fieldDefinitions);
     }
 
     /**
@@ -82,14 +82,18 @@ public class FixedLengthDatBindConfig implements DataBindConfig {
         return multiLayout;
     }
 
-    public List<Layout> getLayout() {
-        return layout.get(Layout.SINGLE_LAYOUT_NAME);
+    public List<FieldDefinition> getFieldDefinitions() {
+        return fieldDefinitions.get(FieldDefinition.SINGLE_LAYOUT_NAME);
+    }
+
+    public List<FieldDefinition> getFieldDefinitions(String recordName) {
+        return fieldDefinitions.get(recordName);
     }
 
     /**
-     * レコードのレイアウト定義
+     * フィールドの定義
      */
-    public static class Layout {
+    public static class FieldDefinition {
 
         public static final String SINGLE_LAYOUT_NAME = "single";
 
@@ -101,7 +105,7 @@ public class FixedLengthDatBindConfig implements DataBindConfig {
 
         private final FieldConverterHolder<?> fieldConverter;
 
-        public Layout(final String name,
+        public FieldDefinition(final String name,
                 final int offset,
                 final int length,
                 final FieldConverterHolder<?> fieldConverter) {

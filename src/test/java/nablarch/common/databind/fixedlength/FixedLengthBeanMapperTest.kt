@@ -33,6 +33,79 @@ class FixedLengthBeanMapperTest {
         }
     }
 
+    enum class Hoge : MultiLayout.RecordName {
+        HEADER {
+            override fun getRecordName(): String = "header"
+        },
+        DATA {
+            override fun getRecordName(): String = "data"
+        };
+
+    }
+
+    @Test
+    fun `マルチレイアウトなファイルを読むことができること`() {
+        data class Header(
+                @get:Field(offset = 1, length = 2)
+                @get:NumberStringConverter
+                var id: Int? = null,
+                @get:Field(offset = 3, length = 4)
+                @get:StringConverter
+                var name: String? = null
+        ) {
+            constructor() : this(null, null)
+        }
+
+        data class Data(
+                @get:Field(offset = 1, length = 1)
+                @get:NumberStringConverter
+                var id: Int? = null,
+                @get:Field(offset = 2, length = 4)
+                @get:StringConverter
+                var name: String? = null
+        ) {
+            constructor() : this(null, null)
+        }
+
+        @FixedLength(length = 4, multiLayout = true, charset = "Windows-31J")
+        class Multi : MultiLayout {
+
+            private var recordName:MultiLayout.RecordName? = null
+            override fun setRecordName(recordName: MultiLayout.RecordName) {
+                this.recordName = recordName
+            }
+
+            override fun getRecordName(): MultiLayout.RecordName? {
+                return this.recordName
+            }
+
+            override fun getLayoutName(line: ByteArray): MultiLayout.RecordName {
+                return if (line.first().toInt() == 0x31) {
+                    Hoge.HEADER
+                } else {
+                    Hoge.DATA
+                }
+
+            }
+
+            @get:Record
+            var header: Header? = null
+            @get:Record
+            var data: Data? = null
+        }
+
+        ObjectMapperFactory.create(Multi::class.java, "12AB212311AAA".toByteArray().inputStream()).use {
+            assertThat(it, instanceOf(FixedLengthBeanMapper::class.java))
+            val first = it.read()
+            assertThat("最初のレコードはヘッダー", first.recordName, `is`<MultiLayout.RecordName>(Hoge.HEADER))
+            assertThat("データレコードはnull", first.data, `is`(nullValue()))
+            assertThat("ヘッダは最初のレコードの情報が入っている", first.header, allOf(
+                    hasProperty("id", `is`(12)),
+                    hasProperty("name", `is`("AB"))
+            ))
+        }
+    }
+
     @Test
     fun `最終レコードに改行がなくても問題なく読み取れること`() {
         @FixedLength(length = 5, charset = "Windows-31J", lineSeparator = "\n")
