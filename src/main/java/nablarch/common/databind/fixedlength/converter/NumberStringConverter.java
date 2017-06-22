@@ -24,12 +24,12 @@ public @interface NumberStringConverter {
             final String string = new String(input, datBindConfig.getCharset());
 
             int i;
-            for (i = string.length(); i > 0; i--) {
-                if (string.charAt(i - 1) != converterConfig.paddingChar()) {
+            for (i = 0; i < string.length(); i++) {
+                if (string.charAt(i) != converterConfig.paddingChar()) {
                     break;
                 }
             }
-            return string.substring(0, i);
+            return string.substring(i);
         }
 
         @Override

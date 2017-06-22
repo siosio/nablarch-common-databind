@@ -9,13 +9,18 @@ import nablarch.common.databind.fixedlength.FixedLengthDatBindConfig;
 import nablarch.common.databind.fixedlength.converter.Converter.FieldConverter;
 import nablarch.common.databind.fixedlength.converter.StringConverter.Impl;
 
+/**
+ * 文字列に変換することを示す。
+ */
 @Converter(converter = Impl.class)
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface StringConverter {
 
+    /** パッディング文字 */
     char paddingChar() default ' ';
 
+    /** ファイルの文字コードを上書きする場合に指定する */
     String charset() default "";
 
     public class Impl implements FieldConverter<StringConverter, String> {

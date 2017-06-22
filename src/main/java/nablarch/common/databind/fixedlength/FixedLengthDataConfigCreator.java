@@ -42,20 +42,22 @@ public class FixedLengthDataConfigCreator implements DataBindConfigCreator<Fixed
         for (final PropertyDescriptor descriptor : descriptors) {
             final Method method = descriptor.getReadMethod();
             final Field field = method.getAnnotation(Field.class);
-            if (field != null) {
-                FieldConverterHolder fieldConverterHolder = null;
-                for (final Annotation annotation : method.getAnnotations()) {
-                    final Converter converter = annotation.annotationType().getAnnotation(Converter.class);
-                    if (converter != null) {
-                        if (fieldConverterHolder != null) {
-                            throw new IllegalStateException();
-                        }
-                        final Class<? extends FieldConverter<?, ?>> fieldConverter = converter.converter();
-                        fieldConverterHolder = new FieldConverterHolder(annotation, DataBindUtil.getInstance(fieldConverter));
-                    }
-                }
-                layouts.add(new Layout(descriptor.getName(), field.offset(), field.length(), fieldConverterHolder));
+            if (field == null) {
+                continue;
             }
+
+            FieldConverterHolder fieldConverterHolder = null;
+            for (final Annotation annotation : method.getAnnotations()) {
+                final Converter converter = annotation.annotationType().getAnnotation(Converter.class);
+                if (converter != null) {
+                    if (fieldConverterHolder != null) {
+                        throw new IllegalStateException();
+                    }
+                    final Class<? extends FieldConverter<?, ?>> fieldConverter = converter.converter();
+                    fieldConverterHolder = new FieldConverterHolder(annotation, DataBindUtil.getInstance(fieldConverter));
+                }
+            }
+            layouts.add(new Layout(descriptor.getName(), field.offset(), field.length(), fieldConverterHolder));
         }
         return layouts;
     }
