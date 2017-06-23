@@ -31,7 +31,7 @@ public class FixedLengthDataConfigConverter implements DataBindConfigConverter<F
         if (fixedLength.multiLayout()) {
             createMultiLayout(builder, beanClass);
         } else {
-            builder.addLayout(FieldDefinition.SINGLE_LAYOUT_NAME, createSingleLayout(beanClass));
+            builder.addLayout(FixedLengthDatBindConfig.RecordDefinition.SINGLE_LAYOUT_NAME, createRecordDefinition(beanClass));
         }
         return builder.build();
     }
@@ -44,11 +44,11 @@ public class FixedLengthDataConfigConverter implements DataBindConfigConverter<F
             if (record == null) {
                 continue;
             }
-            builder.addLayout(descriptor.getName(), createSingleLayout(method.getReturnType()));
+            builder.addLayout(descriptor.getName(), createRecordDefinition(method.getReturnType()));
         }
     }
 
-    private <BEAN> List<FieldDefinition> createSingleLayout(final Class<BEAN> beanClass) {
+    private <BEAN> FixedLengthDatBindConfig.RecordDefinition createRecordDefinition(final Class<BEAN> beanClass) {
         final PropertyDescriptor[] descriptors = BeanUtil.getPropertyDescriptors(beanClass);
         final List<FieldDefinition> fieldDefinitions = new ArrayList<FieldDefinition>(descriptors.length);
         for (final PropertyDescriptor descriptor : descriptors) {
@@ -71,7 +71,7 @@ public class FixedLengthDataConfigConverter implements DataBindConfigConverter<F
             }
             fieldDefinitions.add(new FieldDefinition(descriptor.getName(), field.offset(), field.length(), fieldConverterHolder));
         }
-        return fieldDefinitions;
+        return new FixedLengthDatBindConfig.RecordDefinition(fieldDefinitions);
     }
 
     @Override

@@ -17,7 +17,7 @@ public class FixedLengthDataBindConfigBuilder {
 
     private boolean multiLayout;
 
-    private final Map<String, List<FieldDefinition>> layouts = new HashMap<String, List<FieldDefinition>>();
+    private final Map<String, FixedLengthDatBindConfig.RecordDefinition> recordDefinitions = new HashMap<String, FixedLengthDatBindConfig.RecordDefinition>();
 
     public static FixedLengthDataBindConfigBuilder newBuilder() {
         return new FixedLengthDataBindConfigBuilder();
@@ -44,10 +44,10 @@ public class FixedLengthDataBindConfigBuilder {
     }
 
     public FixedLengthDatBindConfig build() {
-        return new FixedLengthDatBindConfig(charset, length, lineSeparator, multiLayout, layouts);
+        return new FixedLengthDatBindConfig(charset, length, lineSeparator, multiLayout, recordDefinitions);
     }
 
-    public void addLayout(final String single, final List<FieldDefinition> fieldDefinitions) {
-        this.layouts.put(single, fieldDefinitions);
+    public void addLayout(final String recordName, final FixedLengthDatBindConfig.RecordDefinition recordDefinition) {
+        this.recordDefinitions.put(recordName, recordDefinition);
     }
 }

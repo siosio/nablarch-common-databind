@@ -49,14 +49,14 @@ public class FixedLengthBeanMapper<T> extends FixedLengthObjectMapperSupport<T> 
             BeanUtil.setProperty(bean, recordName.getRecordName(), record);
             return bean;
         } else {
-            setFileValue(line, bean, FieldDefinition.SINGLE_LAYOUT_NAME);
+            setFileValue(line, bean, FixedLengthDatBindConfig.RecordDefinition.SINGLE_LAYOUT_NAME);
         }
         return bean;
     }
 
     private void setFileValue(final Line line, final Object bean, final String recordName) {
-        final List<FieldDefinition> fieldDefinitions = config.getFieldDefinitions(recordName);
-        for (final FieldDefinition fieldDefinition : fieldDefinitions) {
+        final FixedLengthDatBindConfig.RecordDefinition recordDefinition = config.getRecordDefinition(recordName);
+        for (final FieldDefinition fieldDefinition : recordDefinition) {
             final String name = fieldDefinition.getName();
             final Object fieldValue = line.readField(config, fieldDefinition);
             BeanUtil.setProperty(bean, name, fieldValue);

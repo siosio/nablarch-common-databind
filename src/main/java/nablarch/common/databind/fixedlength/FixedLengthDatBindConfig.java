@@ -3,6 +3,7 @@ package nablarch.common.databind.fixedlength;
 import java.lang.annotation.Annotation;
 import java.nio.charset.Charset;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -28,7 +29,7 @@ public class FixedLengthDatBindConfig implements DataBindConfig {
     /** レイアウトを判定しレコード定義を持つBeanを返すクラス */
     private final boolean multiLayout;
 
-    private final Map<String, List<FieldDefinition>> fieldDefinitions;
+    private final Map<String, RecordDefinition> recordDefinitions;
 
     /**
      * コンストラクタ。
@@ -43,12 +44,12 @@ public class FixedLengthDatBindConfig implements DataBindConfig {
             final int length,
             final String lineSeparator,
             final boolean multiLayout,
-            final Map<String, List<FieldDefinition>> fieldDefinitions) {
+            final Map<String, RecordDefinition> recordDefinitions) {
         this.charset = charset;
         this.length = length;
         this.lineSeparator = lineSeparator;
         this.multiLayout = multiLayout;
-        this.fieldDefinitions = Collections.unmodifiableMap(fieldDefinitions);
+        this.recordDefinitions = Collections.unmodifiableMap(recordDefinitions);
     }
 
     /**
@@ -82,20 +83,34 @@ public class FixedLengthDatBindConfig implements DataBindConfig {
         return multiLayout;
     }
 
-    public List<FieldDefinition> getFieldDefinitions() {
-        return fieldDefinitions.get(FieldDefinition.SINGLE_LAYOUT_NAME);
+    public RecordDefinition getRecordDefinition(String recordName) {
+        return recordDefinitions.get(recordName);
     }
 
-    public List<FieldDefinition> getFieldDefinitions(String recordName) {
-        return fieldDefinitions.get(recordName);
+    public static class RecordDefinition implements Iterable<FieldDefinition> {
+
+        public static final String SINGLE_LAYOUT_NAME = "single";
+
+        private final List<FieldDefinition> fieldDefinitions;
+
+        public RecordDefinition(final List<FieldDefinition> fieldDefinitions) {
+            this.fieldDefinitions = fieldDefinitions;
+        }
+
+        public List<FieldDefinition> getFieldDefinitions() {
+            return fieldDefinitions;
+        }
+
+        @Override
+        public Iterator<FieldDefinition> iterator() {
+            return fieldDefinitions.iterator();
+        }
     }
 
     /**
      * フィールドの定義
      */
     public static class FieldDefinition {
-
-        public static final String SINGLE_LAYOUT_NAME = "single";
 
         private final String name;
 

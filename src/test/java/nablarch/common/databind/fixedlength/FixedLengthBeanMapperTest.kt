@@ -33,7 +33,7 @@ class FixedLengthBeanMapperTest {
         }
     }
 
-    enum class Hoge : MultiLayout.RecordName {
+    enum class RecordType : MultiLayout.RecordName {
         HEADER {
             override fun getRecordName(): String = "header"
         },
@@ -62,7 +62,7 @@ class FixedLengthBeanMapperTest {
                 var id: Int? = null,
                 @get:Field(offset = 2, length = 4)
                 @get:StringConverter
-                var name: String? = null
+                var data: String? = null
         ) {
             constructor() : this(null, null)
         }
@@ -81,9 +81,9 @@ class FixedLengthBeanMapperTest {
 
             override fun getLayoutName(line: ByteArray): MultiLayout.RecordName {
                 return if (line.first().toInt() == 0x31) {
-                    Hoge.HEADER
+                    RecordType.HEADER
                 } else {
-                    Hoge.DATA
+                    RecordType.DATA
                 }
 
             }
@@ -97,11 +97,19 @@ class FixedLengthBeanMapperTest {
         ObjectMapperFactory.create(Multi::class.java, "12AB212311AAA".toByteArray().inputStream()).use {
             assertThat(it, instanceOf(FixedLengthBeanMapper::class.java))
             val first = it.read()
-            assertThat("最初のレコードはヘッダー", first.recordName, `is`<MultiLayout.RecordName>(Hoge.HEADER))
+            assertThat("最初のレコードはヘッダー", first.recordName, `is`<MultiLayout.RecordName>(RecordType.HEADER))
             assertThat("データレコードはnull", first.data, `is`(nullValue()))
             assertThat("ヘッダは最初のレコードの情報が入っている", first.header, allOf(
                     hasProperty("id", `is`(12)),
                     hasProperty("name", `is`("AB"))
+            ))
+
+            val second = it.read()
+            assertThat("2番目のレコードはデータ", second.recordName, `is`<MultiLayout.RecordName>(RecordType.DATA))
+            assertThat("ヘッダレコードはnull", second.header, `is`(nullValue()))
+            assertThat("データにはレコードの情報が入っている", second.data, allOf(
+                    hasProperty("id", `is`(2)),
+                    hasProperty("data", `is`("123"))
             ))
         }
     }
