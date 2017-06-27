@@ -1,12 +1,35 @@
 package nablarch.common.databind.fixedlength;
 
-public interface MultiLayout {
+/**
+ * マルチレイアウトなファイルを扱うインタフェース。
+ * 
+ */
+public abstract class MultiLayout {
 
-    void setRecordName(RecordName recordName);
+    private RecordName recordName;
 
-    RecordName getRecordName();
+    /**
+     * 現在のレコードの名前を設定する。
+     * @param recordName
+     */
+    public void setRecordName(final RecordName recordName) {
+        this.recordName = recordName;
+    }
 
-    RecordName getLayoutName(byte[] line);
+    /**
+     * 現在のレコードの名前を返す。
+     * @return
+     */
+    public RecordName getRecordName() {
+        return recordName;
+    }
+
+    /**
+     * 現在のレコードの名前をレコードから判定し返す。
+     * @param line
+     * @return
+     */
+    public abstract RecordName getLayoutName(byte[] line);
 
     interface RecordName {
         String getRecordName();

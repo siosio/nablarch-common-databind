@@ -45,7 +45,7 @@ class FixedLengthBeanMapperTest {
 
     @Test
     fun `マルチレイアウトなファイルを読むことができること`() {
-        data class Header(
+        data class Header (
                 @get:Field(offset = 1, length = 2)
                 @get:NumberStringConverter
                 var id: Int? = null,
@@ -68,16 +68,7 @@ class FixedLengthBeanMapperTest {
         }
 
         @FixedLength(length = 4, multiLayout = true, charset = "Windows-31J")
-        class Multi : MultiLayout {
-
-            private var recordName:MultiLayout.RecordName? = null
-            override fun setRecordName(recordName: MultiLayout.RecordName) {
-                this.recordName = recordName
-            }
-
-            override fun getRecordName(): MultiLayout.RecordName? {
-                return this.recordName
-            }
+        class Multi : MultiLayout() {
 
             override fun getLayoutName(line: ByteArray): MultiLayout.RecordName {
                 return if (line.first().toInt() == 0x31) {
@@ -94,7 +85,7 @@ class FixedLengthBeanMapperTest {
             var data: Data? = null
         }
 
-        ObjectMapperFactory.create(Multi::class.java, "12AB212311AAA".toByteArray().inputStream()).use {
+        ObjectMapperFactory.create(Multi::class.java, "12AB212311AA".toByteArray().inputStream()).use {
             assertThat(it, instanceOf(FixedLengthBeanMapper::class.java))
             val first = it.read()
             assertThat("最初のレコードはヘッダー", first.recordName, `is`<MultiLayout.RecordName>(RecordType.HEADER))
@@ -111,6 +102,16 @@ class FixedLengthBeanMapperTest {
                     hasProperty("id", `is`(2)),
                     hasProperty("data", `is`("123"))
             ))
+
+            val third = it.read()
+            assertThat("最後のレコードはヘッダー", third.recordName, `is`<MultiLayout.RecordName>(RecordType.HEADER))
+            assertThat("データレコードはnull", third.data, `is`(nullValue()))
+            assertThat("ヘッダは最初のレコードの情報が入っている", third.header, allOf(
+                hasProperty("id", `is`(11)),
+                hasProperty("name", `is`("AA"))
+            ))
+            
+            assertThat("EOFになったのでnull", it.read(), `is`(nullValue()))
         }
     }
 

@@ -183,10 +183,8 @@ class BasicObjectMapperFactoryTest {
 
         val sut = BasicObjectMapperFactory()
         val beans = sut.createMapper(Bean::class.java, ByteArrayInputStream("1,name\r\n2,name2".toByteArray())).use {
-            generateSequence() {
+            generateSequence {
                 it.read()
-            }.takeWhile {
-                it != null
             }.toList()
         }
 
